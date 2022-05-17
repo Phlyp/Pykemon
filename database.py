@@ -1,10 +1,23 @@
+from calendar import c
 import string
+from sys import meta_path
 import sqlalchemy as db
+import sqlite3 as sdb
+import pandas as pd
+import random
 from sqlalchemy.ext.declarative import declarative_base
 
-db_name = 'pokemon.sqlite'
-engine = db.create_engine('sqlite:///' + db_name)
 base = declarative_base()
+
+db_name = "Data\pokemon.sqlite"
+engine = db.create_engine('sqlite:///' + db_name)
+con = engine.connect()
+meta_data = db.MetaData(bind=engine)
+db.MetaData.reflect(meta_data)
+
+class pokemon(base):
+    __tablename__ = "pokemon"
+    pokemon_id = db.Column(db.Integer, primary_key = True)
 
 class bots(base):
     __tablename__ = 'bots'
@@ -40,12 +53,44 @@ class player(base):
 
 class team(base):
     __tablename__ = 'team'
-    team_id = db.Column(db.Integer, primary_key = True)
-    player_id = db.Column(db.Integer, db.ForeignKey('player.player_id'))
+    pokemon_id = db.Column(db.Integer, primary_key = True)
+    pokedex_number = db.Column(db.Integer)
 
-    def __init__(self, team_id: int, player_id: int) -> None:
-        self.team_id = team_id
-        self.player_id = player_id
+    def __init__(self, pokemon_id: int, pokedex_number: int) -> None:
+        self.id = pokemon_id
+        self.pokedex_number = pokedex_number
+
+def initialise():
+    base.metadata.create_all(engine)
+
+    pokemon_data = pd.read_csv("Data/pokemon.csv", encoding='utf8')
+    pokemon_data.to_sql("pokemon", engine, index=False, if_exists="replace")
+    
 
 
-base.metadata.create_all(engine)
+    
+def createRandomTeam():
+    # meta_data = db.MetaData(bind=engine)
+    # db.MetaData.reflect(meta_data)
+    pokemon_table = meta_data.tables['pokemon']
+    team_table = meta_data.tables['team']
+    
+    rows = db.select([db.func.count()]).select_from(pokemon_table).scalar()
+    for i in range(5):
+        rand = random.randint(0, rows)
+        insert_stmt = db.insert(team_table).values(pokemon_id=i, pokedex_number=rand)
+        # print(insert_stmt)
+        con.execute(insert_stmt)
+
+def deleteTeam():
+    team_table = meta_data.tables['team']
+    query = db.select([team_table])
+    con.execute(db.delete(team_table))
+    
+def listTeam():
+    team = pd.read_sql_table('team', engine)
+    pokemon_pd = pd.read_sql_table('pokemon', engine)
+    
+    print("Your team is currently comprised of: ", end="")
+    for id in team['pokedex_number']:
+        print(pokemon_pd['name'][id], end=", ")
