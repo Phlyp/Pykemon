@@ -2,8 +2,6 @@ import string
 import sqlalchemy as db
 from sqlalchemy.ext.declarative import declarative_base
 
-db_name = 'pokemon.sqlite'
-engine = db.create_engine('sqlite:///' + db_name)
 base = declarative_base()
 
 class bots(base):
@@ -47,5 +45,7 @@ class team(base):
         self.team_id = team_id
         self.player_id = player_id
 
-
-base.metadata.create_all(engine)
+def initialise(name):
+    db_name = name
+    engine = db.create_engine('sqlite:///' + db_name)
+    base.metadata.create_all(engine)
