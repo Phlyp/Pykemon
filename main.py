@@ -42,4 +42,9 @@ if __name__ == "__main__":
     database.initialise()
     print("Welcome to Pykemon!\n")
 
-    game_engine()
+    print(database.tableExists("team"))
+
+    database.deleteTeam()
+    database.createRandomTeam()
+
+    # game_engine()

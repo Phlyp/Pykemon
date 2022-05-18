@@ -15,6 +15,9 @@ con = engine.connect()
 meta_data = db.MetaData(bind=engine)
 db.MetaData.reflect(meta_data)
 
+sqlite_con = sdb.connect(db_name)
+sqlite_cursor = sqlite_con.cursor()
+
 class pokemon(base):
     __tablename__ = "pokemon"
     pokemon_id = db.Column(db.Integer, primary_key = True)
@@ -51,41 +54,48 @@ class player(base):
         self.name = name
         self.pokemon_computer_id = pokemon_computer_id
 
-class team(base):
-    __tablename__ = 'team'
-    pokemon_id = db.Column(db.Integer, primary_key = True)
-    pokedex_number = db.Column(db.Integer)
+# class team(base):
+#     __tablename__ = 'team'
+#     pokemon_id = db.Column(db.Integer, primary_key = True)
+#     pokedex_number = db.Column(db.Integer)
 
-    def __init__(self, pokemon_id: int, pokedex_number: int) -> None:
-        self.id = pokemon_id
-        self.pokedex_number = pokedex_number
+#     def __init__(self, pokemon_id: int, pokedex_number: int) -> None:
+#         self.id = pokemon_id
+#         self.pokedex_number = pokedex_number
 
 def initialise():
     base.metadata.create_all(engine)
 
     pokemon_data = pd.read_csv("Data/pokemon.csv", encoding='utf8')
     pokemon_data.to_sql("pokemon", engine, index=False, if_exists="replace")
+
+    if not tableExists("team"):
+        sqlite_cursor.execute("CREATE TABLE team(\
+            pokemon_id INTEGER PRIMARY KEY,\
+            pokedex_number INTEGER")
     
 
+def tableExists(name):
+    sqlite_cursor.execute(''' SELECT count(name) FROM sqlite_master WHERE type='table' AND name='%s' ''' % name)
+    if sqlite_cursor.fetchone()[0]==1:
+        return True 
+    else:
+        return False
 
     
 def createRandomTeam():
-    # meta_data = db.MetaData(bind=engine)
-    # db.MetaData.reflect(meta_data)
-    pokemon_table = meta_data.tables['pokemon']
-    team_table = meta_data.tables['team']
-    
-    rows = db.select([db.func.count()]).select_from(pokemon_table).scalar()
+    sqlite_cursor.execute("SELECT * FROM pokemon")
+    rows = sqlite_cursor.fetchall()
+    rows = len(rows)
+
     for i in range(5):
         rand = random.randint(0, rows)
-        insert_stmt = db.insert(team_table).values(pokemon_id=i, pokedex_number=rand)
-        # print(insert_stmt)
-        con.execute(insert_stmt)
+        sqlite_cursor.execute("INSERT INTO team(pokemon_id, pokedex_number) VALUES(?,?)", (i, rand))
+        sqlite_con.commit()
 
 def deleteTeam():
-    team_table = meta_data.tables['team']
-    query = db.select([team_table])
-    con.execute(db.delete(team_table))
+    sqlite_cursor.execute("DELETE FROM team")
+    sqlite_con.commit()
     
 def listTeam():
     team = pd.read_sql_table('team', engine)
