@@ -4,7 +4,6 @@ from sys import meta_path
 import sqlalchemy as db
 import sqlite3 as sdb
 import pandas as pd
-import random
 from sqlalchemy.ext.declarative import declarative_base
 
 base = declarative_base()
@@ -54,25 +53,41 @@ class player(base):
         self.name = name
         self.pokemon_computer_id = pokemon_computer_id
 
-# class team(base):
-#     __tablename__ = 'team'
-#     pokemon_id = db.Column(db.Integer, primary_key = True)
-#     pokedex_number = db.Column(db.Integer)
+class team(base):
+    __tablename__ = 'team'
+    pokemon_id = db.Column(db.Integer, primary_key = True)
+    pokedex_number = db.Column(db.Integer)
 
-#     def __init__(self, pokemon_id: int, pokedex_number: int) -> None:
-#         self.id = pokemon_id
-#         self.pokedex_number = pokedex_number
+    def __init__(self, pokemon_id: int, pokedex_number: int) -> None:
+        self.id = pokemon_id
+        self.pokedex_number = pokedex_number
 
 def initialise():
-    base.metadata.create_all(engine)
+    # base.metadata.create_all(engine)
 
     pokemon_data = pd.read_csv("Data/pokemon.csv", encoding='utf8')
     pokemon_data.to_sql("pokemon", engine, index=False, if_exists="replace")
 
-    if not tableExists("team"):
-        sqlite_cursor.execute("CREATE TABLE team(\
-            pokemon_id INTEGER PRIMARY KEY,\
-            pokedex_number INTEGER")
+    sqlite_cursor.execute("""CREATE TABLE IF NOT EXISTS players(
+        player_id INTEGER PRIMARY KEY,
+        name VARCHAR(255),
+        is_bot BOOLEAN,
+        level INTEGER,
+        high_score INTEGER)""")
+
+    sqlite_cursor.execute("""CREATE TABLE IF NOT EXISTS team(
+        player_id INTEGER,
+        pokemon_order INTEGER,
+        pokedex_number INTEGER,
+        health INTEGER,
+        remaining_light INTEGER,
+        remaining_special INTEGER,
+        PRIMARY KEY (player_id, pokemon_order),
+        FOREIGN KEY (player_id) REFERENCES players(player_id))""")
+    
+    sqlite_cursor.execute("INSERT OR REPLACE INTO players VALUES(0, 'bot', TRUE, 0, 0)")
+    sqlite_cursor.execute("INSERT OR REPLACE INTO players VALUES(1, 'player', FALSE, 0, 0)")
+    sqlite_con.commit()
     
 
 def tableExists(name):
@@ -82,25 +97,4 @@ def tableExists(name):
     else:
         return False
 
-    
-def createRandomTeam():
-    sqlite_cursor.execute("SELECT * FROM pokemon")
-    rows = sqlite_cursor.fetchall()
-    rows = len(rows)
 
-    for i in range(5):
-        rand = random.randint(0, rows)
-        sqlite_cursor.execute("INSERT INTO team(pokemon_id, pokedex_number) VALUES(?,?)", (i, rand))
-        sqlite_con.commit()
-
-def deleteTeam():
-    sqlite_cursor.execute("DELETE FROM team")
-    sqlite_con.commit()
-    
-def listTeam():
-    team = pd.read_sql_table('team', engine)
-    pokemon_pd = pd.read_sql_table('pokemon', engine)
-    
-    print("Your team is currently comprised of: ", end="")
-    for id in team['pokedex_number']:
-        print(pokemon_pd['name'][id], end=", ")
