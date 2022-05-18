@@ -11,11 +11,11 @@ def createRandomTeam():
     sqlite_cursor.execute("SELECT * FROM pokemon")
     rows = len(sqlite_cursor.fetchall())
 
-    for i in range(1,6):
+    for i in range(6):
         rand = random.randint(0, rows)
         sqlite_cursor.execute("SELECT hp FROM pokemon WHERE pokedex_number = %i" %rand)
         hp = sqlite_cursor.fetchone()[0]
-        sqlite_cursor.execute("INSERT INTO team(player_id, pokemon_order, pokedex_number, health, remaining_light, remaining_special) VALUES(?,?,?,?,?,?)", (1, i, rand, hp, 8, 3))
+        sqlite_cursor.execute("INSERT INTO team(player_id, pokemon_order, pokedex_number, health, remaining_light, remaining_special) VALUES(?,?,?,?,?,?)", (1, i+1, rand, hp, 8, 3))
     sqlite_con.commit()
 
 def deleteTeam():
