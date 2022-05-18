@@ -1,5 +1,6 @@
 import os
 import database
+import teamManager as team
 
 os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
 import pygame
@@ -22,19 +23,22 @@ def game_engine():
 
     
 def choose_team():
-    database.deleteTeam()
+    team.deleteTeam()
     print(" 1. Choose your own Team\n 2. Create a random Team")
     des = input("Please use the Keys 1-2 + ENTER to choose what to do next! ")
     if des == "1":
         print("Not implemented!")
     elif des == "2":
-        database.createRandomTeam()
+        team.createRandomTeam()
 
-    database.listTeam()
+    team.listTeam()
     print("\n") 
 
 def fight_sim():
-    print("Not implemented!")
+    if team.teamSize() == 0:
+        print("You must first create your team!")
+    else:
+        print("Not implemented!")
 
 
 

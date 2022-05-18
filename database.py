@@ -4,7 +4,6 @@ from sys import meta_path
 import sqlalchemy as db
 import sqlite3 as sdb
 import pandas as pd
-import random
 from sqlalchemy.ext.declarative import declarative_base
 
 base = declarative_base()
@@ -14,6 +13,9 @@ engine = db.create_engine('sqlite:///' + db_name)
 con = engine.connect()
 meta_data = db.MetaData(bind=engine)
 db.MetaData.reflect(meta_data)
+
+sqlite_con = sdb.connect(db_name)
+sqlite_cursor = sqlite_con.cursor()
 
 class pokemon(base):
     __tablename__ = "pokemon"
@@ -61,36 +63,38 @@ class team(base):
         self.pokedex_number = pokedex_number
 
 def initialise():
-    base.metadata.create_all(engine)
+    # base.metadata.create_all(engine)
 
     pokemon_data = pd.read_csv("Data/pokemon.csv", encoding='utf8')
     pokemon_data.to_sql("pokemon", engine, index=False, if_exists="replace")
+
+    sqlite_cursor.execute("""CREATE TABLE IF NOT EXISTS players(
+        player_id INTEGER PRIMARY KEY,
+        name VARCHAR(255),
+        is_bot BOOLEAN,
+        level INTEGER,
+        high_score INTEGER)""")
+
+    sqlite_cursor.execute("""CREATE TABLE IF NOT EXISTS team(
+        player_id INTEGER,
+        pokemon_order INTEGER,
+        pokedex_number INTEGER,
+        health INTEGER,
+        remaining_light INTEGER,
+        remaining_special INTEGER,
+        PRIMARY KEY (player_id, pokemon_order),
+        FOREIGN KEY (player_id) REFERENCES players(player_id))""")
+    
+    sqlite_cursor.execute("INSERT OR REPLACE INTO players VALUES(0, 'bot', TRUE, 0, 0)")
+    sqlite_cursor.execute("INSERT OR REPLACE INTO players VALUES(1, 'player', FALSE, 0, 0)")
+    sqlite_con.commit()
     
 
+def tableExists(name):
+    sqlite_cursor.execute(''' SELECT count(name) FROM sqlite_master WHERE type='table' AND name='%s' ''' % name)
+    if sqlite_cursor.fetchone()[0]==1:
+        return True 
+    else:
+        return False
 
-    
-def createRandomTeam():
-    # meta_data = db.MetaData(bind=engine)
-    # db.MetaData.reflect(meta_data)
-    pokemon_table = meta_data.tables['pokemon']
-    team_table = meta_data.tables['team']
-    
-    rows = db.select([db.func.count()]).select_from(pokemon_table).scalar()
-    for i in range(5):
-        rand = random.randint(0, rows)
-        insert_stmt = db.insert(team_table).values(pokemon_id=i, pokedex_number=rand)
-        # print(insert_stmt)
-        con.execute(insert_stmt)
 
-def deleteTeam():
-    team_table = meta_data.tables['team']
-    query = db.select([team_table])
-    con.execute(db.delete(team_table))
-    
-def listTeam():
-    team = pd.read_sql_table('team', engine)
-    pokemon_pd = pd.read_sql_table('pokemon', engine)
-    
-    print("Your team is currently comprised of: ", end="")
-    for id in team['pokedex_number']:
-        print(pokemon_pd['name'][id], end=", ")
