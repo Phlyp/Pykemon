@@ -8,14 +8,14 @@ from sqlalchemy.ext.declarative import declarative_base
 
 base = declarative_base()
 
-db_name = "Data\pokemon.sqlite"
+db_name = "Data\db.sqlite"
 engine = db.create_engine('sqlite:///' + db_name)
-con = engine.connect()
+conn = engine.connect()
 meta_data = db.MetaData(bind=engine)
 db.MetaData.reflect(meta_data)
 
-sqlite_con = sdb.connect(db_name)
-sqlite_cursor = sqlite_con.cursor()
+sqlite_conn = sdb.connect(db_name)
+sqlite_cursor = sqlite_conn.cursor()
 
 class pokemon(base):
     __tablename__ = "pokemon"
@@ -66,17 +66,18 @@ def initialise():
     # base.metadata.create_all(engine)
 
     pokemon_data = pd.read_csv("Data/pokemon.csv", encoding='utf8')
-    pokemon_data.to_sql("pokemon", sqlite_con, index=False, if_exists="replace")
+    pokemon_data.to_sql("pokemon", sqlite_conn, index=False, if_exists="replace")
 
     pokemon_attacks = pd.read_csv("Data/attacks.csv")
-    pokemon_attacks.to_sql("attacks", sqlite_con, index=False, if_exists="replace")
+    pokemon_attacks.to_sql("attacks", sqlite_conn, index=False, if_exists="replace")
 
     sqlite_cursor.execute("""CREATE TABLE IF NOT EXISTS players(
         player_id INTEGER PRIMARY KEY,
-        name VARCHAR(255),
-        is_bot BOOLEAN,
+        name VARCHAR(255) NOT NULL UNIQUE,
+        is_bot INTEGER,
         level INTEGER,
-        high_score INTEGER)""")
+        high_score INTEGER,
+        CHECK(is_bot IN (0,1)))""")
 
     sqlite_cursor.execute("""CREATE TABLE IF NOT EXISTS team(
         player_id INTEGER,
@@ -88,13 +89,12 @@ def initialise():
         PRIMARY KEY (player_id, pokemon_order),
         FOREIGN KEY (player_id) REFERENCES players(player_id))""")
     
-    sqlite_cursor.execute("INSERT OR REPLACE INTO players VALUES(0, 'bot', TRUE, 0, 0)")
-    sqlite_cursor.execute("INSERT OR REPLACE INTO players VALUES(1, 'player', FALSE, 0, 0)")
-    sqlite_con.commit()
+    sqlite_cursor.execute("INSERT OR REPLACE INTO players VALUES(0, 'bot', 1, 0, 0)")
+    sqlite_conn.commit()
     
 
-def tableExists(name):
-    sqlite_cursor.execute(''' SELECT count(name) FROM sqlite_master WHERE type='table' AND name='%s' ''' % name)
+def table_exists(name):
+    sqlite_cursor.execute(''' SELECT COUNT(name) FROM sqlite_master WHERE type='table' AND name=? ''', (name,))
     if sqlite_cursor.fetchone()[0]==1:
         return True 
     else:
