@@ -3,34 +3,43 @@ import database
 import random
 import pandas as pd
 
-sqlite_con = sqlite3.connect(database.db_name)
-sqlite_cursor = sqlite_con.cursor()
+conn = sqlite3.connect(database.db_name)
+cursor = conn.cursor()
 
-def createRandomTeam():
+def create_random_team(player_id):
     print("Creating random Team!")
-    sqlite_cursor.execute("SELECT * FROM pokemon")
-    rows = len(sqlite_cursor.fetchall())
+    cursor.execute("SELECT * FROM pokemon")
+    rows = len(cursor.fetchall())
 
     for i in range(6):
         rand = random.randint(0, rows)
-        sqlite_cursor.execute("SELECT hp FROM pokemon WHERE pokedex_number = %i" %rand)
-        hp = sqlite_cursor.fetchone()[0]
-        sqlite_cursor.execute("INSERT INTO team(player_id, pokemon_order, pokedex_number, health, remaining_light, remaining_special) VALUES(?,?,?,?,?,?)", (1, i+1, rand, hp, 8, 3))
-    sqlite_con.commit()
+        cursor.execute("SELECT hp FROM pokemon WHERE pokedex_number = ?", (rand,))
+        hp = cursor.fetchone()[0]
+        cursor.execute("INSERT OR REPLACE INTO team(player_id, pokemon_order, pokedex_number, health, remaining_light, remaining_special) VALUES(?,?,?,?,?,?)", (player_id, i+1, rand, hp, 8, 3))
+    conn.commit()
 
-def deleteTeam():
-    sqlite_cursor.execute("DELETE FROM team")
-    sqlite_con.commit()
+def delete_all_teams():
+    cursor.execute("DELETE FROM team")
+    conn.commit()
     
-def listTeam():
-    team = pd.read_sql('SELECT * FROM team', sqlite_con)
-    pokemon_pd = pd.read_sql('SELECT * FROM pokemon', sqlite_con)
-    
-    print("Your team is currently comprised of: ", end="")
-    for id in team['pokedex_number']:
-        print(pokemon_pd['name'][id], end=", ")
+def list_team(player_id):
+    if team_size(player_id) == 0:
+        print("You have no Team!")
+        return
 
-def teamSize():
-    sqlite_cursor.execute("SELECT * FROM team WHERE player_id = 1")
-    team_size = len(sqlite_cursor.fetchall())
+    cursor.execute("""SELECT team.pokemon_order, pokemon.name
+        FROM team
+        INNER JOIN pokemon ON team.pokedex_number = pokemon.pokedex_number 
+        WHERE team.player_id = ?
+        ORDER BY team.pokemon_order""", (player_id,))
+    team = cursor.fetchall()
+
+    
+    print("Your team is currently comprised of: ")
+    for row in team:
+        print(" %i. %s" %(row[0], row[1]))
+
+def team_size(player_id):
+    cursor.execute("SELECT * FROM team WHERE player_id = ?", (player_id,))
+    team_size = len(cursor.fetchall())
     return team_size
