@@ -66,7 +66,10 @@ def initialise():
     # base.metadata.create_all(engine)
 
     pokemon_data = pd.read_csv("Data/pokemon.csv", encoding='utf8')
-    pokemon_data.to_sql("pokemon", engine, index=False, if_exists="replace")
+    pokemon_data.to_sql("pokemon", sqlite_con, index=False, if_exists="replace")
+
+    pokemon_attacks = pd.read_csv("Data/attacks.csv")
+    pokemon_attacks.to_sql("attacks", sqlite_con, index=False, if_exists="replace")
 
     sqlite_cursor.execute("""CREATE TABLE IF NOT EXISTS players(
         player_id INTEGER PRIMARY KEY,
