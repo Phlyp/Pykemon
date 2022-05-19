@@ -17,14 +17,14 @@ clear = lambda: os.system('cls')
 def game_engine():
     while True:
         clear()
-        print(" 1. Player Settings \n 2. Choose your Team \n 3. Fight!\n 4. Exit!")
+        print(" 1. Player Settings \n 2. Edit your team \n 3. Fight!\n 4. Exit!")
         des = input("Please use the Keys 1-4 + ENTER to choose what to do next! ")
         clear()
 
         if des == "1":
             player_settings()
         elif des == "2":
-            choose_team()
+            team_settings()
         elif des == "3":
             fight_sim()
             wait_for_keypress()
@@ -51,13 +51,14 @@ def player_settings():
             player.change_current_player()
         elif des == "4":
             player.delete_all_players()
+            team.delete_all_teams()
         elif des == "5":
             print("")
             break
         else:
             print("invalid input given!")
     
-def choose_team():
+def team_settings():
     while True:
         clear()
         print(" 1. Choose your own Team\n 2. Create a random Team \n 3. List Team \n 4. Back to main menu")
@@ -68,12 +69,11 @@ def choose_team():
             print("Not implemented!")
             wait_for_keypress()
         elif des == "2":
-            team.delete_team()
-            team.create_random_team()
-            team.list_team()
+            team.create_random_team(player.currentPlayer.id)
+            team.list_team(player.currentPlayer.id)
             wait_for_keypress()
         elif des == "3":
-            team.list_team()
+            team.list_team(player.currentPlayer.id)
             wait_for_keypress()
         elif des == "4":
             print("")
@@ -83,7 +83,7 @@ def choose_team():
         print("\n") 
 
 def fight_sim():
-    if team.team_size() == 0:
+    if team.team_size(player.currentPlayer.id) == 0:
         print("You must first create your team!")
     else:
         print("Not implemented!")
