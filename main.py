@@ -99,9 +99,7 @@ if __name__ == "__main__":
 
     if is_new_session:
         clear()
-        player_name = input("As you are starting Pykemon for the first time, please enter your name:")
-        while player_name == "":
-            player_name = input("Please enter your name: ")
-        player.create_new_player(player_name)
+        player_name = input("As you are starting Pykemon for the first time, you must first create a player!")
+        player.create_new_player()
 
     game_engine()
