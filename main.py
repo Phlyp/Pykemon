@@ -99,7 +99,8 @@ if __name__ == "__main__":
 
     if is_new_session:
         clear()
-        player_name = input("As you are starting Pykemon for the first time, you must first create a player!")
+        print("As you are starting Pykemon for the first time, you must first create a player!")
+        wait_for_keypress()
         player.create_new_player()
 
     game_engine()

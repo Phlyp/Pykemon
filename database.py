@@ -75,7 +75,9 @@ def initialise():
         player_id INTEGER PRIMARY KEY,
         name VARCHAR(255) NOT NULL UNIQUE,
         is_bot INTEGER,
+        xp INTEGER,
         level INTEGER,
+        dollars INTEGER,
         high_score INTEGER,
         CHECK(is_bot IN (0,1)))""")
 
@@ -89,7 +91,7 @@ def initialise():
         PRIMARY KEY (player_id, pokemon_order),
         FOREIGN KEY (player_id) REFERENCES players(player_id))""")
     
-    sqlite_cursor.execute("INSERT OR REPLACE INTO players VALUES(0, 'bot', 1, 0, 0)")
+    sqlite_cursor.execute("INSERT OR REPLACE INTO players VALUES(0, 'bot', 1, 0, 0, 0, 0)")
     sqlite_conn.commit()
     
 
