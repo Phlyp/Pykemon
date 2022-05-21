@@ -82,13 +82,13 @@ def initialise():
         CHECK(is_bot IN (0,1)))""")
 
     sqlite_cursor.execute("""CREATE TABLE IF NOT EXISTS team(
+        team_id INTEGER PRIMARY KEY,
         player_id INTEGER,
         pokemon_order INTEGER,
         pokedex_number INTEGER,
         health INTEGER,
         remaining_light INTEGER,
         remaining_special INTEGER,
-        PRIMARY KEY (player_id, pokemon_order),
         FOREIGN KEY (player_id) REFERENCES players(player_id))""")
     
     sqlite_cursor.execute("INSERT OR REPLACE INTO players VALUES(0, 'bot', 1, 0, 0, 0, 0)")
