@@ -29,11 +29,11 @@ bot_pokemon = pokemon()
 def choose_pokemon():
     teamManager.list_team(current_player.id)
 
-    des = int(input("Please use the Keys 1-6 + ENTER to choose which pokemon to send into battle! "))
-    while des < 1 or des > 6:
+    decision = sys.get_number("Please use the Keys 1-6 + ENTER to choose which pokemon to send into battle! ")
+    while decision < 1 or decision > 6:
         print("Invalid input given!")
-        des = input("Please use the Keys 1-6 + ENTER to choose which pokemon to send into battle! ")
-    player_pokemon.team_id = cursor.execute("SELECT team_id FROM team WHERE player_id = ? AND pokemon_order = ?", (current_player.id, des)).fetchone()[0]
+        decision = int(input("Please use the Keys 1-6 + ENTER to choose which pokemon to send into battle! "))
+    player_pokemon.team_id = cursor.execute("SELECT team_id FROM team WHERE player_id = ? AND pokemon_order = ?", (current_player.id, decision)).fetchone()[0]
     hp = cursor.execute("SELECT health FROM team WHERE team_id = ?", (player_pokemon.team_id,)).fetchone()[0]
     if hp < 1:
         sys.clear()
@@ -74,15 +74,15 @@ def choose_attack():
         print(f" 2. {sp_attack1: <13} type: {type1: <10} damage: {special_damage}")
         print(f" 3. {sp_attack2: <13} type: {type2: <10} damage: {special_damage}")
         print(" 4. Go back")
-        des = input("Please use the Keys 1-4 + ENTER to choose your attack! ")
+        decision = input("Please use the Keys 1-4 + ENTER to choose your attack! ")
 
-        if des == "1":
+        if decision == "1":
             attack(basic_attack, basic_damage, player_pokemon, bot_pokemon)
-        elif des == "2":
+        elif decision == "2":
             attack(sp_attack1, special_damage, player_pokemon, bot_pokemon)
-        elif des == "3":
+        elif decision == "3":
             attack(sp_attack2, special_damage, player_pokemon, bot_pokemon)
-        elif des == "4":
+        elif decision == "4":
             return
         else:
             print("Invalid Input given!")
@@ -93,13 +93,13 @@ def choose_attack():
         print(f" 1. {basic_attack: <13} type: {type0: <10} damage: {basic_damage}")
         print(f" 2. {sp_attack1: <13} type: {type1: <10} damage: {special_damage}")
         print(" 3. Go back")
-        des = input("Please use the Keys 1-3 + ENTER to choose your attack! ")
+        decision = input("Please use the Keys 1-3 + ENTER to choose your attack! ")
         
-        if des == "1":
+        if decision == "1":
             attack(basic_attack, basic_damage, player_pokemon, bot_pokemon)
-        elif des == "2":
+        elif decision == "2":
             attack(sp_attack1, special_damage, player_pokemon, bot_pokemon)
-        elif des == "3":
+        elif decision == "3":
             return
         else:
             print("Invalid Input given!")
@@ -168,14 +168,14 @@ def fight_engine():
         print("It's your turn!")
         print(f"You: {player_pokemon.name: <10} hp: {player_pokemon.get_hp(): <10} Enemy: {bot_pokemon.name: <10} hp: {bot_pokemon.get_hp()}")
         print(" 1. Attack \n 2. Choose a different Pokemon \n 3. Run")
-        des = input("Please use the Keys 1-3 + ENTER to choose what to do next! ")
+        decision = input("Please use the Keys 1-3 + ENTER to choose what to do next! ")
         sys.clear()
 
-        if des == "1":
+        if decision == "1":
             choose_attack()
-        elif des == "2":
+        elif decision == "2":
             choose_pokemon()
-        elif des == "3":
+        elif decision == "3":
             return
         else:
             print("Invalid input given!")

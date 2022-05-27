@@ -17,20 +17,20 @@ def game_engine():
         sys.clear()
         print(f"Hello {player.current_player.name}, what would you like to do?")
         print(" 1. Player Settings \n 2. Edit your team \n 3. Fight!\n 4. Exit!")
-        des = input("Please use the Keys 1-4 + ENTER to choose what to do next! ")
+        decision = input("Please use the Keys 1-4 + ENTER to choose what to do next! ")
         sys.clear()
 
-        if des == "1":
+        if decision == "1":
             player_settings()
-        elif des == "2":
+        elif decision == "2":
             team_settings()
-        elif des == "3":
+        elif decision == "3":
             if team.team_size(player.current_player.id) == 0:
                 print("You must first create your team!")
                 sys.wait_for_keypress()
             else:
                 fight.fight_engine()
-        elif des == "4":
+        elif decision == "4":
             print("Goodbye!")
             quit()
         else:
@@ -41,20 +41,20 @@ def player_settings():
         sys.clear()
         print(f"Hello {player.current_player.name}, what would you like to do?")
         print(" 1. Get player info \n 2. Create new player \n 3. Change current player \n 4. Delete all players \n 5. Back to main menu")
-        des = input("Please use the Keys 1-5 + ENTER to choose what to do next! ")
+        decsision = input("Please use the Keys 1-5 + ENTER to choose what to do next! ")
         sys.clear()
 
-        if des == "1":
+        if decsision == "1":
             player.get_player_info()
             sys.wait_for_keypress()
-        elif des == "2":
+        elif decsision == "2":
             player.create_new_player()
-        elif des == "3":
+        elif decsision == "3":
             player.change_current_player()
-        elif des == "4":
+        elif decsision == "4":
             player.delete_all_players()
             team.delete_all_teams()
-        elif des == "5":
+        elif decsision == "5":
             print("")
             break
         else:
@@ -65,24 +65,24 @@ def team_settings():
         sys.clear()
         print(f"Hello {player.current_player.name}, what would you like to do?")
         print(" 1. Choose your own Team\n 2. Create a random Team \n 3. List Team \n 4. Heal team \n 5. Back to main menu")
-        des = input("Please use the Keys 1-4 + ENTER to choose what to do next! ")
+        decision = input("Please use the Keys 1-4 + ENTER to choose what to do next! ")
         sys.clear()
 
-        if des == "1":
+        if decision == "1":
             print("Not implemented!")
             sys.wait_for_keypress()
-        elif des == "2":
+        elif decision == "2":
             team.create_random_team(player.current_player.id)
             team.list_team(player.current_player.id)
             sys.wait_for_keypress()
-        elif des == "3":
+        elif decision == "3":
             team.list_team(player.current_player.id)
             sys.wait_for_keypress()
-        elif des == "4":
+        elif decision == "4":
             team.heal_team(player.current_player.id)
             print("Healing team!")
             sys.wait_for_keypress()
-        elif des == "5":
+        elif decision == "5":
             print("")
             break
         else:
