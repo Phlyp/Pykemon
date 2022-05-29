@@ -1,7 +1,6 @@
 import os
 import system_calls as sys
 
-from zmq import PLAIN
 import database
 import teamManager as team
 import playerManager as player

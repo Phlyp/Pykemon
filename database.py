@@ -1,4 +1,4 @@
-from calendar import c
+import os
 import string
 from sys import meta_path
 import sqlalchemy as db
@@ -8,7 +8,7 @@ from sqlalchemy.ext.declarative import declarative_base
 
 base = declarative_base()
 
-db_name = "Data\db.sqlite"
+db_name = os.path.join("Data","db.sqlite")
 engine = db.create_engine('sqlite:///' + db_name)
 conn = engine.connect()
 meta_data = db.MetaData(bind=engine)

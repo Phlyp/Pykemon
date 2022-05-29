@@ -70,7 +70,7 @@ def choose_attack():
     basic_attack = "Tackle"
 
     type0 = "basic"
-    (type1, type2) = cursor.execute("SELECT type1, type2 FROM pokemon WHERE pokedex_number = ?", (player_pokemon.team_id,)).fetchone()
+    (type1, type2) = cursor.execute("SELECT type1, type2 FROM pokemon WHERE pokedex_number = ?", (player_pokemon.pokedex_number,)).fetchone()
 
     remaining_light = cursor.execute("SELECT remaining_light FROM team WHERE team_id = ?", (player_pokemon.team_id,)).fetchone()[0]
     remaining_special = cursor.execute("SELECT remaining_special FROM team WHERE team_id = ?", (player_pokemon.team_id,)).fetchone()[0]
@@ -172,7 +172,7 @@ def attack(attack_name, type, attacking_pokemon=pokemon, defending_pokemon=pokem
     # type damage
     type_damage = 1
     if type != "basic":
-        (defending_type1, defending_type2) = cursor.execute("SELECT type1, type2 FROM pokemon WHERE pokedex_number = ?", (defending_pokemon.team_id,)).fetchone()
+        (defending_type1, defending_type2) = cursor.execute("SELECT type1, type2 FROM pokemon WHERE pokedex_number = ?", (defending_pokemon.pokedex_number,)).fetchone()
         type1_column = "against_" + defending_type1
         against_type1 = cursor.execute("SELECT %s FROM attacks WHERE type = ?" %(type1_column), (type,)).fetchone()[0]
         against_type2 = 1
