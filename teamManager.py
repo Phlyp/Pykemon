@@ -16,7 +16,7 @@ def create_random_team(player_id):
         rand = random.randint(1, rows)
         cursor.execute("SELECT hp FROM pokemon WHERE pokedex_number = ?", (rand,))
         hp = cursor.fetchone()[0]
-        cursor.execute("INSERT OR REPLACE INTO team(player_id, pokemon_order, pokedex_number, health, remaining_light, remaining_special) VALUES(?,?,?,?,?,?)", (player_id, i+1, rand, hp, 8, 3))
+        cursor.execute("INSERT OR REPLACE INTO team(player_id, pokemon_order, pokedex_number, health, remaining_light, remaining_special) VALUES(?,?,?,?,?,?)", (player_id, i+1, rand, hp, 8, 6))
     conn.commit()
 
 def delete_all_teams():
@@ -30,6 +30,12 @@ def delete_team(player_id):
 def heal_team(player_id):
     cursor.execute("""UPDATE team
         SET health = (SELECT hp FROM pokemon WHERE pokedex_number = team.pokedex_number)
+        WHERE player_id = ?""", (player_id,))
+    conn.commit()
+
+def reset_team(player_id):
+    cursor.execute("""UPDATE team
+        SET remaining_light = 8, remaining_special = 6
         WHERE player_id = ?""", (player_id,))
     conn.commit()
     
