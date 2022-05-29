@@ -23,7 +23,7 @@ class App(QWidget):
 
         # Add box layout, add table to box layout and add box layout to widget
         self.layout = QVBoxLayout()
-        self.layout.addWidget(self.tableWidget) 
+        self.layout.addWidget(self.table_widget) 
         self.setLayout(self.layout) 
 
         # Show widget
@@ -31,19 +31,19 @@ class App(QWidget):
 
     def createTable(self):
        # Create table
-        self.tableWidget = QTableWidget()
-        self.tableWidget.setRowCount(len(self.df_pokemon.name))
-        self.tableWidget.setColumnCount(2)
+        self.table_widget = QTableWidget()
+        self.table_widget.setRowCount(len(self.df_pokemon.name))
+        self.table_widget.setColumnCount(2)
         for idx, name in enumerate(self.df_pokemon.name):
-            imagePath = f'Data/pokemon_images/pokemon/pokemon/{idx+1}.png'
-            pic = QtGui.QPixmap(imagePath)
+            image_path = f'Data/pokemon_images/pokemon/pokemon/{idx+1}.png'
+            pic = QtGui.QPixmap(image_path)
             label = QtWidgets.QLabel()
             label.setPixmap(pic)
-            self.tableWidget.setItem(idx, 0, QTableWidgetItem(name))
-            self.tableWidget.setCellWidget(idx, 1, label)
-            self.tableWidget.setRowHeight(idx, 256)
-        self.tableWidget.horizontalHeader().setStretchLastSection(True)
-        self.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+            self.table_widget.setItem(idx, 0, QTableWidgetItem(name))
+            self.table_widget.setCellWidget(idx, 1, label)
+            self.table_widget.setRowHeight(idx, 256)
+        self.table_widget.horizontalHeader().setStretchLastSection(True)
+        self.table_widget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
  
 if __name__ == '__main__':
     app = QApplication(sys.argv)
