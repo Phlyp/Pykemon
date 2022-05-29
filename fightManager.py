@@ -70,7 +70,7 @@ def choose_attack():
     basic_attack = "Tackle"
 
     type0 = "basic"
-    (type1, type2) = cursor.execute("SELECT type1, type2 FROM pokemon WHERE pokedex_number = ?", (player_pokemon.team_id,)).fetchone()
+    (type1, type2) = cursor.execute("SELECT type1, type2 FROM pokemon WHERE pokedex_number = ?", (player_pokemon.pokedex_number,)).fetchone()
 
     remaining_light = cursor.execute("SELECT remaining_light FROM team WHERE team_id = ?", (player_pokemon.team_id,)).fetchone()[0]
     remaining_special = cursor.execute("SELECT remaining_special FROM team WHERE team_id = ?", (player_pokemon.team_id,)).fetchone()[0]
