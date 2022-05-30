@@ -5,6 +5,7 @@ import database
 import teamManager as team
 import playerManager as player
 import fightManager as fight
+import selection as sel
 
 os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
 import pygame
@@ -86,7 +87,8 @@ def team_settings():
         sys.clear()
 
         if decision == "1":
-            print("Not implemented!")
+            team.delete_team(player.current_player.id)
+            sel.start_selection(player.current_player.id)
             sys.wait_for_keypress()
         elif decision == "2":
             team.create_random_team(player.current_player.id)
