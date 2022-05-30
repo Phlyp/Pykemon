@@ -301,9 +301,9 @@ function to check if all pokemon of a player have already fainted in order to de
 def check_win(player_id):
     end = True
     hp_values = cursor.execute("SELECT health FROM team WHERE player_id = ?", (player_id,)).fetchall()
-    # for hp in hp_values:
-    #     if hp[0] > 0:
-    #         end = False
+    for hp in hp_values:
+        if hp[0] > 0:
+            end = False
     
     if end:
         is_bot = cursor.execute("SELECT is_bot FROM players WHERE player_id = ?", (player_id,)).fetchone()[0]
@@ -382,8 +382,6 @@ def fight_engine():
 
     global game_over
     game_over = False 
-
-    check_win(0)
 
     player_pokemon_speed = cursor.execute("SELECT speed FROM pokemon WHERE pokedex_number = ?", (player_pokemon.pokedex_number,)).fetchone()[0]
     bot_pokemon_speed = cursor.execute("SELECT speed FROM pokemon WHERE pokedex_number = ?", (bot_pokemon.pokedex_number,)).fetchone()[0]
