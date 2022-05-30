@@ -53,8 +53,10 @@ class App(QWidget):
             pic = QtGui.QPixmap(image_path)
             picture_label = QtWidgets.QLabel()
             picture_label.setPixmap(pic)
+            item = QtWidgets.QTableWidgetItem(name)
+            item.setFlags(item.flags() ^ QtCore.Qt.ItemIsEditable)
             #Fill column 1 with names of pokemon and column 2 with their corresponding picture
-            self.table_widget.setItem(idx, 0, QTableWidgetItem(name))
+            self.table_widget.setItem(idx, 0, item)
             self.table_widget.setCellWidget(idx, 1, picture_label)
             self.table_widget.setRowHeight(idx, 256)
             if idx == 720:
