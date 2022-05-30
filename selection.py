@@ -3,7 +3,6 @@ import os
 from PyQt5.QtWidgets import *
 from PyQt5 import QtCore, QtGui, QtWidgets
 import pandas as pd
-from database import player
 import teamManager as team
 
 class App(QWidget):
@@ -65,10 +64,6 @@ class App(QWidget):
             print("You can only hold a maximum of 6 Pokemon!")
         self.count += 1
 
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    ex = App(0)
-    app.exec_()
     
 def start_selection(player_id):
     app = QApplication(sys.argv)

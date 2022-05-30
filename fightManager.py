@@ -3,7 +3,7 @@ import system_calls as sys
 
 import sqlite3
 import random
-from database import db_name, team
+from database import db_name
 from playerManager import current_player
 import teamManager
 
