@@ -1,7 +1,10 @@
 import os
 
 def clear():
-    os.system('cls')
+    if os.name == "nt":
+        os.system('cls')
+    else:
+        os.system('clear')
 
 def wait_for_keypress():
     input("press ENTER to continue")

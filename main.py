@@ -1,7 +1,6 @@
 import os
 import system_calls as sys
 
-from zmq import PLAIN
 import database
 import teamManager as team
 import playerManager as player
@@ -13,6 +12,12 @@ import pygame
 
 clear = lambda: os.system('cls')
 
+"""
+Main menu game loop
+
+*inputs: none
+*returns: none
+"""
 def game_engine():
     while True:
         sys.clear()
@@ -37,6 +42,12 @@ def game_engine():
         else:
             print("invalid input given!")
 
+"""
+player settings main menu
+
+*inputs: none
+*returns: none
+"""
 def player_settings():
     while True:
         sys.clear()
@@ -61,6 +72,12 @@ def player_settings():
         else:
             print("invalid input given!")
     
+"""
+team settings main menu
+
+*inputs: none
+*outputs: none
+"""
 def team_settings():
     while True:
         sys.clear()
@@ -92,7 +109,14 @@ def team_settings():
         print("\n") 
 
 
+"""
+main program funcion
+checks if database exists, 
+    if not a new player must be created first
+    else prompts to select a player
+starts main menu loop
 
+"""
 if __name__ == "__main__":
     is_new_session = not database.table_exists("team")
     database.initialise()
