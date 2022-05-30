@@ -1,6 +1,5 @@
 from tokenize import Special
 import system_calls as sys
-
 import sqlite3
 import random
 from database import db_name
@@ -111,6 +110,7 @@ calls the attack funcion
     !! binary: returns a 1 if the user chooses to abort the attack process, and a 0 when an attack is completed 
 """
 def choose_attack():
+    
     pokedex_number = player_pokemon.pokedex_number
     (total_light, total_special) = (8,6)
     basic_attack = "Tackle"
@@ -285,9 +285,47 @@ simple bot attack function that always attacks with a basic tackle move
 def bot_attack():
     pokedex_number = cursor.execute("SELECT pokedex_number FROM team WHERE team_id = ?", (bot_pokemon.team_id,)).fetchone()[0]
     basic_damage = cursor.execute("SELECT attack FROM pokemon WHERE pokedex_number = ?", (pokedex_number,)).fetchone()[0]
-    basic_attack = "Tackle"
-    type = "basic"
-    attack(basic_attack, type, bot_pokemon, player_pokemon)
+
+    (type1, type2) = cursor.execute("SELECT type1, type2 FROM pokemon WHERE pokedex_number = ?", (bot_pokemon.pokedex_number,)).fetchone()
+    (defending_type1, defending_type2) = cursor.execute("SELECT type1, type2 FROM pokemon WHERE pokedex_number = ?", (player_pokemon.pokedex_number,)).fetchone()
+
+    type1_column = "against_" + defending_type1
+    type1_against_type1 = cursor.execute("SELECT %s FROM attacks WHERE type = ?" %(type1_column), (type1,)).fetchone()[0]
+    sp_attack1 = cursor.execute("SELECT Attack FROM attacks WHERE Type = ?", (type1,)).fetchone()[0]
+    
+    if type2 is not None:
+        type2_against_type1 = cursor.execute("SELECT %s FROM attacks WHERE type = ?" %(type1_column), (type2,)).fetchone()[0]
+        sp_attack2 = cursor.execute("SELECT Attack FROM attacks WHERE Type = ?", (type2,)).fetchone()[0]
+
+    type1_against_type2 = 1
+    type2_against_type2 = 1
+
+    if defending_type2 is not None:
+        type2_column = "against_" + defending_type2
+        type1_against_type2 = cursor.execute("SELECT %s FROM attacks WHERE type = ?" %(type2_column), (type1,)).fetchone()[0]
+        if type2 is not None:
+            type2_against_type2 = cursor.execute("SELECT %s FROM attacks WHERE type = ?" %(type2_column), (type2,)).fetchone()[0]
+
+    type1_damage = type1_against_type1*type1_against_type2
+    if type2 is not None:
+        type2_damage = type2_against_type1*type2_against_type2
+    else:
+        type2_against_type1 = 0
+        type2_against_type2 = 0
+        type2_damage = 0
+    
+
+    
+    if max(type1_damage, type2_damage) < 1:
+        attack_name = "Tackle"
+        type = "basic"
+    elif type1_damage>type2_damage:
+        attack_name = sp_attack1
+        type = type1
+    else:
+        attack_name = sp_attack2
+        type = type2
+    attack(attack_name, type, bot_pokemon, player_pokemon)
 
 """
 function to check if all pokemon of a player have already fainted in order to determine if the other player has won
