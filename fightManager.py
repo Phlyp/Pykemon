@@ -348,6 +348,38 @@ def check_win(player_id):
         if is_bot:
             sys.clear()
             print("You Won!")
+
+            # calculate win rewards
+
+            alive_pokemon = teamManager.alive_team_size(current_player.id)
+            old_xp = cursor.execute("SELECT xp FROM players WHERE player_id = ?", (current_player.id,)).fetchone()[0]
+            lvl = cursor.execute("SELECT level FROM players WHERE player_id = ?", (current_player.id,)).fetchone()[0]
+            old_dollars = cursor.execute("SELECT dollars FROM players WHERE player_id = ?", (current_player.id,)).fetchone()[0]
+            old_score = cursor.execute("SELECT high_score FROM players WHERE player_id = ?", (current_player.id,)).fetchone()[0]
+            
+
+            new_xp = int(alive_pokemon*random.randint(85,100))
+            new_score = new_xp * 2
+            print(f"You scored {new_score} points and gained {new_xp} XP!")
+            new_dollars = int(alive_pokemon*1.5*random.randint(60,100))
+            if (old_xp + new_xp) > 1000: # level up!
+                print("You Leveled Up!")
+                old_xp = 0
+                lvl = lvl + 1
+                new_dollars = new_dollars + 100
+            print(f"You earned {new_dollars} ddllars")
+            new_xp = old_xp + new_xp
+            new_dollars = old_dollars + new_dollars
+
+            # write win rewards in table
+            cursor.execute("UPDATE players SET xp = ? WHERE player_id = ?", (new_xp, current_player.id))
+            cursor.execute("UPDATE players SET level = ? WHERE player_id = ?", (lvl, current_player.id))
+            cursor.execute("UPDATE players SET dollars = ? WHERE player_id = ?", (new_dollars, current_player.id))
+            if new_score > old_score:
+                cursor.execute("UPDATE players SET high_score = ? WHERE player_id = ?", (new_score, current_player.id))
+            conn.commit()
+
+
             sys.wait_for_keypress()
         else:
             sys.clear()

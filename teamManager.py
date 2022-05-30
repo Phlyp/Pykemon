@@ -121,3 +121,16 @@ def team_size(player_id):
     cursor.execute("SELECT * FROM team WHERE player_id = ?", (player_id,))
     team_size = len(cursor.fetchall())
     return team_size
+
+"""
+returns the amount of pokemon still alive in the team of the player
+
+*inputs:
+    player_id (int): id of the player to count the team size of
+*outputs:
+    teams_size (int): size of the team
+"""
+def alive_team_size(player_id):
+    cursor.execute("SELECT * FROM team WHERE player_id = ? AND health > 0", (player_id,))
+    team_size = len(cursor.fetchall())
+    return team_size

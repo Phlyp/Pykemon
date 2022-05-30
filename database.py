@@ -1,7 +1,6 @@
 import os
 import string
 from sys import meta_path
-import sqlalchemy as db
 import sqlite3 as sdb
 import pandas as pd
 from sqlalchemy.ext.declarative import declarative_base
