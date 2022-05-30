@@ -8,6 +8,9 @@ cursor = conn.cursor()
 
 
 def add_pokemon_to_team(player_id, pokemon_id, count):
+    """
+    Add one Pokemon to the player team
+    """
     cursor.execute("SELECT * FROM pokemon")
     cursor.execute("SELECT name FROM pokemon WHERE pokedex_number = ?", (pokemon_id+1,))
     name = cursor.fetchone()[0]
