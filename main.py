@@ -33,6 +33,7 @@ def game_engine():
         elif decision == "3":
             if team.team_size(player.current_player.id) == 0:
                 print("You must first create your team!")
+                print("To create your team go to 'Edit Your Team' in the main Menu!")
                 sys.wait_for_keypress()
             else:
                 fight.fight_engine()
@@ -130,7 +131,24 @@ if __name__ == "__main__":
         player.create_new_player()
     else:
         sys.clear()
-        print("Select your Player:")
-        player.change_current_player()
+        print("Would you like to:")
+        print(" 1. Select an exisiting Player\n 2. Create a new player")
+        
+        while True:
+            decision = input("Please use the Keys 1-2 + ENTER to choose what to do next! ")
+
+            if decision == "1":
+                sys.clear()
+                print("Select your Player:")
+                player.change_current_player()
+                break
+            elif decision == "2":
+                sys.clear()
+                player.create_new_player()
+                break
+            else:
+                print("Invalid Input given!")
+                continue
+            
 
     game_engine()

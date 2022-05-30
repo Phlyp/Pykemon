@@ -1,7 +1,6 @@
 import os
 import string
 from sys import meta_path
-import sqlalchemy as db
 import sqlite3 as sdb
 import pandas as pd
 from sqlalchemy.ext.declarative import declarative_base
@@ -9,10 +8,6 @@ from sqlalchemy.ext.declarative import declarative_base
 base = declarative_base()
 
 db_name = os.path.join("Data","db.sqlite")
-engine = db.create_engine('sqlite:///' + db_name)
-conn = engine.connect()
-meta_data = db.MetaData(bind=engine)
-db.MetaData.reflect(meta_data)
 
 sqlite_conn = sdb.connect(db_name)
 sqlite_cursor = sqlite_conn.cursor()
