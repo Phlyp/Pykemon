@@ -67,11 +67,10 @@ class App(QWidget):
         if pokemon is double clicked add it to team
         """
         self.poke_ID = self.table_widget.currentIndex().row()
-        if self.count < 7:
-            team.add_pokemon_to_team(self.player_id, self.poke_ID, self.count)
-        else:
-            print("You can only hold a maximum of 6 Pokemon!")
+        team.add_pokemon_to_team(self.player_id, self.poke_ID, self.count)
         self.count += 1
+        if self.count == 7:
+            self.close()
 
     
 def start_selection(player_id):
