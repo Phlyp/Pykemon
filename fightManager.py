@@ -10,6 +10,11 @@ import teamManager
 conn = sqlite3.connect(db_name)
 cursor = conn.cursor()
 
+"""
+class to save some basic information on a pokemon for convenience
+saves the team_id, name and pokedex_number of the pokemon
+contains a method to get and set the hp of the pokemon
+"""
 class pokemon:
     team_id = 0
     name = ""
@@ -17,10 +22,23 @@ class pokemon:
 
     def __init__(self):
         pass
-    
+    """
+    returns the hp of the pokemon in the team table
+
+    *inputs: none
+    *outputs:
+        health of the pokemon
+    """
     def get_hp(self):
         return cursor.execute("SELECT health FROM team WHERE team_id = ?", (self.team_id,)).fetchone()[0]
     
+    """
+    sets the hp of the pokemon in the team table
+
+    *inputs:
+        new_hp: the new hp to write in the team_table entry for the pokemon
+    *outputs: none
+    """
     def set_hp(self, new_hp):
         cursor.execute("UPDATE team SET health = ? WHERE team_id = ?", (new_hp, self.team_id))
         conn.commit()
@@ -28,6 +46,15 @@ class pokemon:
 player_pokemon = pokemon()
 bot_pokemon = pokemon()
 
+"""
+prompts the user to choose a pokemon from his team
+starts by listing all available pokemon
+based on input changes the values of the player_pokemon object
+!only works for the actual player!
+
+*inputs: none
+*outputs: none
+"""
 def choose_pokemon():
     teamManager.list_team(current_player.id)
 
@@ -52,6 +79,13 @@ def choose_pokemon():
         WHERE team.team_id = ?""", (player_pokemon.team_id,))
     player_pokemon.pokedex_number = cursor.fetchone()[0]
 
+"""
+randomly chooses a pokemon for the bot player
+changes the bot_pokemon object
+
+*inputs: none
+*outputs: none
+"""
 def choose_bot_pokemon():
     alive_pokemon = cursor.execute("SELECT team_id FROM team WHERE player_id = 0 AND health > 0").fetchall()
     bot_pokemon.team_id = random.choice(alive_pokemon)[0]
@@ -64,6 +98,18 @@ def choose_bot_pokemon():
         WHERE team.team_id = ?""", (bot_pokemon.team_id,))
     bot_pokemon.pokedex_number = cursor.fetchone()[0]
 
+"""
+prompts the user to choose an attack
+starts by getting all available attacks for the player_pokemon
+lists all attacks and waits for input
+checks if there are enough attacks remaining
+calls the attack funcion
+!only works for the player!
+
+*inputs: none
+*outputs:
+    !! binary: returns a 1 if the user chooses to abort the attack process, and a 0 when an attack is completed 
+"""
 def choose_attack():
     pokedex_number = player_pokemon.pokedex_number
     (total_light, total_special) = (8,6)
@@ -76,6 +122,7 @@ def choose_attack():
     remaining_special = cursor.execute("SELECT remaining_special FROM team WHERE team_id = ?", (player_pokemon.team_id,)).fetchone()[0]
 
     sp_attack1 = cursor.execute("SELECT Attack FROM attacks WHERE Type = ?", (type1,)).fetchone()[0]
+    # because some pokemon have 1, and some pokemon have 2 types, we need to differentiate when listing the attacks and asking for an input
     if type2 is not None:
         sp_attack2 = cursor.execute("SELECT Attack FROM attacks WHERE Type = ?", (type2,)).fetchone()[0]
 
@@ -140,6 +187,20 @@ def choose_attack():
                 print("Invalid Input given!")
     return 0
         
+"""
+performs an attack and inflicts damage on the defending pokemon
+first decrements remaining attack column (light/special)
+then calculates damage based on simplified version of this formula https://bulbapedia.bulbagarden.net/wiki/Damage
+checks if defending_pokemon fainted (hp < 0)
+    if so, calls checkWin() function
+    then calls choose_pokemon or choose_bot_pokemon depending on who the defender was
+
+*inputs:
+    attack_name (string): name of the attack used
+    type (string): type of the attack used
+    attacking_pokemon (pokemon): pokemon object for the pokemon using the attack
+    defending_pokemon (pokemon): pokemon object for the pokemon receiving the attack
+"""
 def attack(attack_name, type, attacking_pokemon=pokemon, defending_pokemon=pokemon):
     sys.clear()
     print(f"{attacking_pokemon.name} used {attack_name}!")
@@ -195,6 +256,7 @@ def attack(attack_name, type, attacking_pokemon=pokemon, defending_pokemon=pokem
     print(f"{attacking_pokemon.name} did {damage} damage!")
     sys.wait_for_keypress()   
 
+    # inflict damage
     defending_pokemon.set_hp(defending_pokemon.get_hp() - damage)
 
     # check if pokemon feinted
@@ -214,6 +276,12 @@ def attack(attack_name, type, attacking_pokemon=pokemon, defending_pokemon=pokem
         else:
             choose_bot_pokemon() 
 
+"""
+simple bot attack function that always attacks with a basic tackle move
+
+*inputs: none
+*outputs: none
+"""
 def bot_attack():
     pokedex_number = cursor.execute("SELECT pokedex_number FROM team WHERE team_id = ?", (bot_pokemon.team_id,)).fetchone()[0]
     basic_damage = cursor.execute("SELECT attack FROM pokemon WHERE pokedex_number = ?", (pokedex_number,)).fetchone()[0]
@@ -221,6 +289,15 @@ def bot_attack():
     type = "basic"
     attack(basic_attack, type, bot_pokemon, player_pokemon)
 
+"""
+function to check if all pokemon of a player have already fainted in order to determine if the other player has won
+    if so, prints who won the game and sets the global variable game_over to True
+
+*inputs:
+    player_id (int): id whose team should be checked
+*outputs: 
+    end (boolean): False if the game is not over, True if the game is over
+"""
 def check_win(player_id):
     end = True
     hp_values = cursor.execute("SELECT health FROM team WHERE player_id = ?", (player_id,)).fetchall()
@@ -242,7 +319,27 @@ def check_win(player_id):
         game_over = True
     return end
 
+"""
+main loop to manage the fights
 
+starts by creating the bots team and choosing him a pokemon
+resets the players team health and remaing attacks
+prompts the player to choose a pokemon
+
+checks whose pokemon has a higher speed rating, lets that player go first
+
+turn based system: player and bot take turns making their move
+
+player has the option to attack (calls choose_attack) or change their current pokemon (calls choose_pokemon) or run away
+the first to options end the turn, running away goes back to the main menu
+
+the bot always calls bot_attack 
+
+after each turn, the global variable game_over is checked, if True returns user to the main menu
+
+*inputs: none
+*outputs: none
+"""
 def fight_engine():
     #initial set up for fight
     teamManager.create_random_team(0)
