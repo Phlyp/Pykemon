@@ -6,6 +6,9 @@ import pandas as pd
 import teamManager as team
 
 class App(QWidget):
+    """
+    Class for pokemon selection menu
+    """
 
     def __init__(self, player_id):
         super().__init__()
@@ -39,9 +42,11 @@ class App(QWidget):
         self.table_widget = QTableWidget()
         self.table_widget.setRowCount(721)
         self.table_widget.setColumnCount(2)
+        #Get image filenames
         image_files = [f for f in os.listdir('Data/pokemon_images/pokemon/pokemon') if os.path.isfile(os.path.join('Data/pokemon_images/pokemon/pokemon', f))]
         for idx, name in enumerate(self.df_pokemon.name):
             image_name = str(idx+1) + '.png'
+            #Some Pokemon have different Forms so the images are labeled differently which needs to be checked
             if image_name not in image_files:
                 image_name = next(x for x in image_files if (str(idx+1) + '-' in x))
             image_path = f'Data/pokemon_images/pokemon/pokemon/{image_name}'
@@ -51,6 +56,8 @@ class App(QWidget):
             item = QtWidgets.QTableWidgetItem(name)
             item.setFlags(item.flags() ^ QtCore.Qt.ItemIsEditable)
             self.table_widget.setItem(idx, 0, item)
+            #Fill column 1 with names of pokemon and column 2 with their corresponding picture
+            self.table_widget.setItem(idx, 0, QTableWidgetItem(name))
             self.table_widget.setCellWidget(idx, 1, picture_label)
             self.table_widget.setRowHeight(idx, 256)
             if idx == 720:
@@ -59,6 +66,9 @@ class App(QWidget):
         self.table_widget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
 
     def pokemon_double_clicked(self):
+        """
+        if pokemon is double clicked add it to team
+        """
         self.poke_ID = self.table_widget.currentIndex().row()
         if self.count < 7:
             team.add_pokemon_to_team(self.player_id, self.poke_ID, self.count)
